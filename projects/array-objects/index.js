@@ -15,7 +15,7 @@ function forEach(array, fn) {
     for (let i = 0; i < array.length; i++) {
       fn(array[i], i, array);
     }
-  }
+  } else throw new Error('wrong parameters!');
 }
 
 /*
@@ -34,7 +34,7 @@ function map(array, fn) {
       newArr.push(fn(array[i], i, array));
     }
     return newArr;
-  }
+  } else throw new Error('wrong parameters!');
 }
 
 /*
@@ -47,18 +47,13 @@ function map(array, fn) {
    reduce([1, 2, 3], (all, current) => all + current) // 6
  */
 function reduce(array, fn, initial) {
-  if (
-    Array.isArray(array) &&
-    array.length &&
-    typeof fn === 'function' &&
-    (typeof initial === 'number' || typeof initial === 'undefined')
-  ) {
+  if (Array.isArray(array) && array.length && typeof fn === 'function') {
     let total = typeof initial === 'number' ? initial : array[0];
     for (let i = initial ? 0 : 1; i < array.length; i++) {
       total = fn(total, array[i], i, array);
     }
     return total;
-  }
+  } else throw new Error('wrong parameters!');
 }
 
 /*
@@ -71,11 +66,8 @@ function reduce(array, fn, initial) {
  */
 function upperProps(obj) {
   if (typeof obj === 'object') {
-    const keys = Object.keys(obj);
-    if (Array.isArray(keys) && keys.length) {
-      return keys.map((key) => key.toUpperCase());
-    }
-  }
+    return Object.keys(obj).map((key) => key.toUpperCase());
+  } else throw new Error('not an object!');
 }
 
 /*
@@ -96,7 +88,7 @@ function createProxy(obj) {
         return (target[prop] = value * value);
       },
     });
-  }
+  } else throw new Error('not an object!');
 }
 
 export { forEach, map, reduce, upperProps, createProxy };
