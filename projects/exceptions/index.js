@@ -19,9 +19,8 @@
 function isAllTrue(array, fn) {
   if (!Array.isArray(array) || !array.length) throw new Error('empty array');
   if (typeof fn !== 'function') throw new Error('fn is not a function');
-  let result = true;
-  for (let i = 0; i < array.length; i++) if (!fn(array[i])) result = false;
-  return result;
+  for (let i = 0; i < array.length; i++) if (!fn(array[i])) return false;
+  return true;
 }
 
 /*
@@ -43,9 +42,8 @@ function isAllTrue(array, fn) {
 function isSomeTrue(array, fn) {
   if (!Array.isArray(array) || !array.length) throw new Error('empty array');
   if (typeof fn !== 'function') throw new Error('fn is not a function');
-  let result = false;
-  for (let i = 0; i < array.length; i++) if (fn(array[i])) result = true;
-  return result;
+  for (let i = 0; i < array.length; i++) if (fn(array[i])) return true;
+  return false;
 }
 
 /*
