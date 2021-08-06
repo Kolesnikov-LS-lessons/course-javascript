@@ -39,7 +39,21 @@ const homeworkContainer = document.querySelector('#app');
  Массив городов пожно получить отправив асинхронный запрос по адресу
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
-function loadTowns() {}
+function loadTowns() {
+  return fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
+    .then((response) => {
+      if (response.status !== 200) throw new Error('wrong response code');
+      return response.json();
+    })
+    .then((towns) => {
+      towns.sort((a, b) => {
+        if (a.name > b.name) return 1;
+        if (a.name < b.name) return -1;
+        return 0;
+      });
+      return towns;
+    });
+}
 
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
@@ -52,7 +66,9 @@ function loadTowns() {}
    isMatching('Moscow', 'SCO') // true
    isMatching('Moscow', 'Moscov') // false
  */
-function isMatching(full, chunk) {}
+function isMatching(full, chunk) {
+  return chunk !== '' && full.toLowerCase().includes(chunk.toLowerCase());
+}
 
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
@@ -67,8 +83,39 @@ const filterInput = homeworkContainer.querySelector('#filter-input');
 /* Блок с результатами поиска */
 const filterResult = homeworkContainer.querySelector('#filter-result');
 
-retryButton.addEventListener('click', () => {});
+retryButton.addEventListener('click', () => {
+  renderApp();
+});
 
-filterInput.addEventListener('input', function () {});
+filterInput.addEventListener('input', function () {
+  const matchedTowns = townsSorted.filter((item) => isMatching(item.name, this.value));
+  filterResult.innerHTML = null;
+  if (matchedTowns.length) {
+    for (const town of matchedTowns) {
+      const liElement = document.createElement('div');
+      liElement.innerText = town.name;
+      filterResult.appendChild(liElement);
+    }
+  }
+});
+
+let townsSorted;
+
+function renderApp() {
+  loadingFailedBlock.hidden = true;
+  filterBlock.hidden = true;
+  loadTowns()
+    .then((towns) => {
+      townsSorted = towns;
+      loadingBlock.hidden = true;
+      filterBlock.hidden = false;
+    })
+    .catch(() => {
+      loadingBlock.hidden = true;
+      loadingFailedBlock.hidden = false;
+    });
+}
+
+renderApp();
 
 export { loadTowns, isMatching };
