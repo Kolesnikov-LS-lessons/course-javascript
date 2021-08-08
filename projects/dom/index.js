@@ -49,13 +49,8 @@ function prepend(what, where) {
  */
 function findAllPSiblings(where) {
   const result = [];
-  for (const child of where.children) {
-    if (
-      child.nodeType === Node.ELEMENT_NODE &&
-      child.nextElementSibling &&
-      child.nextElementSibling.tagName === 'P'
-    )
-      result.push(child);
+  for (const child of where.querySelectorAll('P')) {
+    if (child.previousSibling) result.push(child.previousSibling);
   }
   return result;
 }
@@ -143,21 +138,18 @@ function deleteTextNodesRecursive(where) {
    }
  */
 function collectDOMStat(root) {
-  const result = {};
+  const result = { texts: 0, classes: {}, tags: {} };
   const scan = (root) => {
     for (const child of [...root.childNodes]) {
       if (child.hasChildNodes()) scan(child);
-      if (child.nodeType === Node.TEXT_NODE)
-        result.texts ? result.texts++ : (result.texts = 1);
+      if (child.nodeType === Node.TEXT_NODE) result.texts++;
       if (child.nodeType === Node.ELEMENT_NODE) {
         if (child.classList.length) {
-          if (!result.classes) result['classes'] = {};
           for (const className of child.classList)
             result.classes[className]
               ? result.classes[className]++
               : (result.classes[className] = 1);
         }
-        if (!result.tags) result['tags'] = {};
         result.tags[child.tagName]
           ? result.tags[child.tagName]++
           : (result.tags[child.tagName] = 1);
