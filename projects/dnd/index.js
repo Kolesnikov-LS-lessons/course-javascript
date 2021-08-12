@@ -23,6 +23,17 @@ let currentDiv = false,
   ShiftX,
   ShiftY;
 
+document.addEventListener('mousedown', (e) => {
+  if (e.target.classList.contains('draggable-div')) {
+    e.preventDefault();
+    ShiftX = e.clientX - e.target.offsetLeft;
+    ShiftY = e.clientY - e.target.offsetTop;
+    e.target.style.cursor = 'move';
+    e.target.style.zIndex = '2';
+    currentDiv = e.target;
+  }
+});
+
 document.addEventListener('mousemove', (e) => {
   e.preventDefault();
   if (currentDiv) {
@@ -31,12 +42,23 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
+document.addEventListener('mouseup', (e) => {
+  if (currentDiv) {
+    e.preventDefault();
+    currentDiv = false;
+    e.target.style.cursor = 'auto';
+    e.target.style.zIndex = 'auto';
+  }
+});
+
+const randomInteger = (min, max) =>
+  Math.round(min - 0.5 + Math.random() * (max - min + 1));
+
 export function createDiv() {
   const minDivSize = 100,
     maxDivSize = 300,
     maxWindowWidth = document.documentElement.clientWidth,
     maxWindowHeight = document.documentElement.clientHeight,
-    randomInteger = (min, max) => Math.round(min - 0.5 + Math.random() * (max - min + 1)),
     newDiv = document.createElement('div');
   newDiv.classList.add('draggable-div');
   newDiv.draggable = true;
@@ -47,20 +69,6 @@ export function createDiv() {
     randomInteger(0, maxWindowWidth - parseInt(newDiv.style.width)) + 'px';
   newDiv.style.top =
     randomInteger(0, maxWindowHeight - parseInt(newDiv.style.height)) + 'px';
-  newDiv.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    ShiftX = e.clientX - newDiv.offsetLeft;
-    ShiftY = e.clientY - newDiv.offsetTop;
-    newDiv.style.cursor = 'move';
-    newDiv.style.zIndex = '2';
-    currentDiv = newDiv;
-  });
-  newDiv.addEventListener('mouseup', (e) => {
-    e.preventDefault();
-    currentDiv = false;
-    newDiv.style.cursor = 'auto';
-    newDiv.style.zIndex = 'auto';
-  });
   return newDiv;
 }
 
