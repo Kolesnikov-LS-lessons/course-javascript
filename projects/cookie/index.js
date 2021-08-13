@@ -45,8 +45,76 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-filterNameInput.addEventListener('input', function () {});
+filterNameInput.addEventListener('input', function () {
+  filterString = encodeURIComponent(this.value.trim());
+  drawTable();
+});
 
-addButton.addEventListener('click', () => {});
+addButton.addEventListener('click', () => {
+  const cookieName = encodeURIComponent(addNameInput.value.trim());
+  const cookieValue = encodeURIComponent(addValueInput.value.trim());
+  if (cookieName === '' || cookieValue === '') {
+    alert('Имя и значение cookie не должны быть пустыми!');
+    return;
+  }
+  setCookies(cookieName, cookieValue);
+  drawTable();
+});
 
-listTable.addEventListener('click', (e) => {});
+listTable.addEventListener('click', (e) => {
+  if (e.target.classList.contains('remove-cookie'))
+    setCookies(e.target.getAttribute('cookiename'), 'deleted', 0);
+});
+
+let filterString = '';
+const allCookies = getCookies();
+
+function setCookies(cookieName, cookieValue, daysToExpire = 1) {
+  const d = new Date();
+  d.setTime(d.getTime() + daysToExpire * 24 * 60 * 60 * 1000);
+  document.cookie = `${cookieName}=${cookieValue}; expires=${d.toUTCString()}`;
+  if (daysToExpire === 0) delete allCookies[cookieName];
+  else allCookies[cookieName] = cookieValue;
+  drawTable();
+}
+
+function drawTable() {
+  listTable.innerHTML = '';
+  const fragment = document.createDocumentFragment();
+  for (const [cookieName, cookieValue] of Object.entries(allCookies)) {
+    if (
+      cookieName.toLowerCase().includes(filterString.toLowerCase()) ||
+      cookieValue.toLowerCase().includes(filterString.toLowerCase())
+    ) {
+      const tr = document.createElement('tr'),
+        nameTD = document.createElement('td'),
+        valueTD = document.createElement('td'),
+        removeTD = document.createElement('td'),
+        removeButton = document.createElement('button');
+      nameTD.textContent = cookieName;
+      valueTD.textContent = cookieValue;
+      removeButton.classList.add('remove-cookie');
+      removeButton.setAttribute('cookieName', cookieName);
+      removeButton.textContent = 'Удалить';
+      removeTD.append(removeButton);
+      tr.append(nameTD, valueTD, removeTD);
+      fragment.append(tr);
+    }
+  }
+  document.getElementById('list-block').hidden = !fragment.children.length;
+  document.getElementById('filter-block').hidden = !fragment.children.length;
+  listTable.append(fragment);
+}
+
+function getCookies() {
+  return document.cookie
+    .split('; ')
+    .filter(Boolean)
+    .map((cookie) => cookie.match(/^([^=]+)=(.+)/))
+    .reduce((cookiesObj, [cookieStr, cookieName, cookieValue]) => {
+      cookiesObj[cookieName] = cookieValue;
+      return cookiesObj;
+    }, {});
+}
+
+drawTable();
